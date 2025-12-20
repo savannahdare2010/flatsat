@@ -10,21 +10,22 @@ The provided functions are only for reference, you do not need to use them.
 You will need to complete the take_photo() function and configure the VARIABLES section
 """
 
-#AUTHOR: 
+#AUTHORS: Savannah Dare, Felix Quezada-York, Qi Cheng Feng, Helen Montero, Anna Keh 
 #DATE:
 
-#import libraries
+#import libraries 
 import time
 import board
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX as LSM6DS
 from adafruit_lis3mdl import LIS3MDL
 from git import Repo
 from picamera2 import Picamera2
+import os
 
 #VARIABLES
-THRESHOLD = 0      #Any desired value from the accelerometer
-REPO_PATH = ""     #Your github repo path: ex. /home/pi/FlatSatChallenge
-FOLDER_PATH = ""   #Your image folder path in your GitHub repo: ex. /Images
+THRESHOLD = "That's for us to figure out with hardware."      #Any desired value from the accelerometer
+REPO_PATH = r"C:\Users\savan\flatsat" #Your github repo path: ex. /home/pi/FlatSatChallenge
+FOLDER_PATH = r"images"   #Your image folder path in your GitHub repo: ex. /Images
 
 #imu and camera initialization
 i2c = board.I2C()
@@ -60,8 +61,8 @@ def img_gen(name):
         name (str): your name ex. MasonM
     """
     t = time.strftime("_%H%M%S")
-    imgname = (f'{REPO_PATH}/{FOLDER_PATH}/{name}{t}.jpg')
-    return imgname
+    return os.path.join(REPO_PATH, FOLDER_PATH, f"{name}{t}.jpg")
+
 
 
 def take_photo():
@@ -71,14 +72,19 @@ def take_photo():
     """
     while True:
         accelx, accely, accelz = accel_gyro.acceleration
-
-        #CHECKS IF READINGS ARE ABOVE THRESHOLD
-            #PAUSE
-            #name = ""     #First Name, Last Initial  ex. MasonM
-            #TAKE PHOTO
-            #PUSH PHOTO TO GITHUB
+        mag_accel = mag_accel = (accelx**2 + accely**2 + accelz**2) ** 0.5
+        if mag_accel > THRESHOLD: #CHECKS IF READINGS ARE ABOVE THRESHOLD
+            time.sleep(1) #PAUSE
+            name = "SavannahD" #name = ""     #First Name, Last Initial  ex. MasonM
+            image_name = img_gen(name)
+            
+            capture_config = picam2.create_still_configuration()
+            picam2.start(show_preview=True)
+            time.sleep(1)
+            picam2.switch_mode_and_capture_file(capture_config, image_name)
+            git_push() #PUSH PHOTO TO GITHUB 
         
-        #PAUSE
+        time.sleep(1)
 
 
 def main():
