@@ -23,9 +23,9 @@ from picamera2 import Picamera2
 import os
 
 #VARIABLES
-THRESHOLD = "That's for us to figure out with hardware."      #Any desired value from the accelerometer
-REPO_PATH = r"C:\Users\savan\flatsat" #Your github repo path: ex. /home/pi/FlatSatChallenge
-FOLDER_PATH = r"images"   #Your image folder path in your GitHub repo: ex. /Images
+THRESHOLD = 0      #Any desired value from the accelerometer
+REPO_PATH = "/home/savannahdare/flatsat" #Your github repo path: ex. /home/pi/FlatSatChallenge
+FOLDER_PATH = "images"   #Your image folder path in your GitHub repo: ex. /Images
 
 #imu and camera initialization
 i2c = board.I2C()
@@ -44,7 +44,7 @@ def git_push():
         print('added remote')
         origin.pull()
         print('pulled changes')
-        repo.git.add(REPO_PATH + FOLDER_PATH)
+        repo.git.add(os.path.join(REPO_PATH, FOLDER_PATH))
         repo.index.commit('New Photo')
         print('made the commit')
         origin.push()
@@ -67,24 +67,29 @@ def img_gen(name):
 
 def take_photo():
     """
-    This function is NOT complete. Takes a photo when the FlatSat is shaken.
-    Replace psuedocode with your own code.
+    Takes a photo when acceleration magnitude exceeds THRESHOLD.
+    Correct implementation for Raspberry Pi Camera Module 3.
     """
+
+    # ---- Camera setup (ONCE) ----
+    capture_config = picam2.create_still_configuration()
+    picam2.configure(capture_config)
+    picam2.start()
+    time.sleep(2)  # Allow camera to warm up
+
     while True:
         accelx, accely, accelz = accel_gyro.acceleration
-        mag_accel = mag_accel = (accelx**2 + accely**2 + accelz**2) ** 0.5
-        if mag_accel > THRESHOLD: #CHECKS IF READINGS ARE ABOVE THRESHOLD
-            time.sleep(1) #PAUSE
-            name = "SavannahD" #name = ""     #First Name, Last Initial  ex. MasonM
+        mag_accel = (accelx**2 + accely**2 + accelz**2) ** 0.5
+
+        if mag_accel > THRESHOLD:
+            time.sleep(0.5)  # debounce delay
+            name = "SavannahD"
             image_name = img_gen(name)
-            
-            capture_config = picam2.create_still_configuration()
-            picam2.start(show_preview=True)
-            time.sleep(1)
-            picam2.switch_mode_and_capture_file(capture_config, image_name)
-            git_push() #PUSH PHOTO TO GITHUB 
-        
-        time.sleep(1)
+            picam2.capture_file(image_name)
+            git_push()
+            time.sleep(2)  # prevent rapid re-triggering
+        time.sleep(0.1)
+
 
 
 def main():
