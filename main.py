@@ -11,7 +11,11 @@ You will need to complete the take_photo() function and configure the VARIABLES 
 """
 
 #AUTHORS: Savannah Dare, Felix Quezada-York, Qi Cheng Feng, Helen Montero, Anna Keh 
+
 #DATE: 12/25/2025
+=======
+#DATE: ssh rasp pi git rasp pi
+
 
 #import libraries 
 import time # so everything doesn't happen too fast
@@ -23,7 +27,11 @@ from picamera2 import Picamera2 # to program the camera
 import os # so you can interact with the computer's operating system through code
 
 #VARIABLES
+
 THRESHOLD = 1.11154      #Any desired value from the accelerometer (that we manipulate), point is so that above a certain acceleration detected means the flatsat is actually being shaken
+
+THRESHOLD = 1.11154      #Any desired value from the accelerometer
+
 REPO_PATH = "/home/savannahdare/flatsat" #Your github repo path: ex. /home/pi/FlatSatChallenge
 FOLDER_PATH = "images"   #Your image folder path in your GitHub repo: ex. /Images, we don't do the stuff that comes before it just cause when we refer to it we'll merge it with the stuff that comes before it, and we don't include the slash because of the way that we merge them
 
@@ -76,9 +84,15 @@ def take_photo():
     time.sleep(2)  # Allow camera to warm up
 
     while True:
+
         accelx, accely, accelz = accel_gyro.acceleration # makes 3 variables for acceleration in each axis loaded from the accelerometer
         mag_accel = (accelx**2 + accely**2 + accelz**2) ** 0.5 # math that determines the ultimate acceleration
         dynamic_accel = abs(9.81-mag_accel) # calculates acceleration deviating from gravitational acceleration
+
+        accelx, accely, accelz = accel_gyro.acceleration
+        mag_accel = (accelx**2 + accely**2 + accelz**2) ** 0.5
+        dynamic_accel = abs(9.81-mag_accel)
+
 
         if dynamic_accel > THRESHOLD:
             time.sleep(0.5)  # debounce delay
@@ -95,5 +109,10 @@ def main(): # main function, function that runs everything that needs to be run 
     take_photo() # runs take_photo function 
 
 
+
 if __name__ == '__main__': # runs the main function within the condition that the program was run directly
     main()
+
+if __name__ == '__main__':
+    main()
+
